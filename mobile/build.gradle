@@ -1,0 +1,219 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.oss.licenses.plugin'
+//apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'jacoco'
+
+def signingPropertiesFile=new File("${project.projectDir}/release_signing.properties")
+if(signingPropertiesFile.exists()) {
+    println "properties found and exist"
+    Properties props = new Properties()
+    props.load(new FileInputStream(signingPropertiesFile))
+
+    android {
+        signingConfigs {
+            release {
+                storeFile file(props['STORE_FILE'])
+                storePassword props['STORE_PASSWORD']
+                keyAlias props['KEY_ALIAS']
+                keyPassword props['KEY_PASSWORD']
+            }
+        }
+        buildTypes {
+            release {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}else{
+    println "properties not found"
+}
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion rootProject.buildToolsVersion
+    defaultConfig {
+        applicationId "com.semeshky.kvgspotter"
+        minSdkVersion 21
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/roomSchemas".toString()]
+            }
+        }
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+        unitTests.all {
+            jacoco {
+                includeNoLocationClasses = true
+            }
+        }
+    }
+    dataBinding {
+        enabled = true
+    }
+    buildTypes {
+
+        applicationVariants.all { variant ->
+        }
+        release {
+            minifyEnabled true
+            versionNameSuffix "-release"
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            testCoverageEnabled true
+            minifyEnabled false
+            versionNameSuffix "-debug"
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    flavorDimensions "mapType", "gplayserivces"
+
+    productFlavors {
+        playServices {
+            dimension "gplayserivces"
+            versionNameSuffix "-ps"
+        }
+        noPlayServices {
+            dimension "gplayserivces"
+            versionNameSuffix "-nops"
+        }
+        osm {
+            dimension "mapType"
+            applicationIdSuffix ".osm"
+            versionNameSuffix "-osm"
+        }
+        gmaps {
+            dimension "mapType"
+            applicationIdSuffix ".gmaps"
+            versionNameSuffix "-gmaps"
+        }
+    }
+    lintOptions {
+        abortOnError true
+    }
+}
+
+task mergeJacocoReport(type: JacocoMerge) {
+    group "Jacoco Report"
+    description "Merge Jacoco Code Coverage Report"
+
+    def executionFiles = fileTree(dir: "${buildDir}/outputs/code-coverage/connected/flavors",
+            includes: ['**/*.exec', '**/*.ec'],
+            excludes: ['mergeJacocoReport.exec']
+    )
+    setExecutionData(executionFiles)
+}
+
+apply from: "./jacoco.gradle"
+
+jacoco {
+    toolVersion = "0.8.0"
+}
+
+android.variantFilter { variant ->
+    // Filter variants for impossible combinations
+    int excludeMatches = 0
+    for (int i = 0; i < variant.getFlavors().size(); i++) {
+        final String name = variant.getFlavors().get(i).name
+        if (name.equals("gmaps") || name.equals("noPlayServices")) {
+            excludeMatches++
+        }
+    }
+    if (excludeMatches == 2) {
+        variant.setIgnore(true)
+    }
+}
+
+android.applicationVariants.all { variant ->
+    //ADDING SEVERAL BUILD VARIANT DEPENDEND CONSTANTS TO THE RESOURCE FILES
+    variant.resValue "string", "SEARCH_SUGGEST_AUTHORITY", variant.applicationId + ".providers.search"
+    variant.buildConfigField("String", "SEARCH_SUGGEST_AUTHORITY", "\"" + variant.applicationId + ".providers.search\"")
+    variant.resValue "string", "SEARCH_SUGGEST_CONTENT_URI", "content://" + variant.applicationId + "/stop"
+    variant.buildConfigField("String", "SEARCH_SUGGEST_CONTENT_URI", "\"content://" + variant.applicationId + "/stop\"")
+    variant.resValue "string", "PACKAGE_NAME", variant.applicationId
+    if (variant.name.contains("gmaps")) {
+        if (variant.buildType.name.equals("debug")) {
+            resValue "string", "GMAPS_API_KEY", getGoogleMapsApiKey(false)
+        } else {
+            resValue "string", "GMAPS_API_KEY", getGoogleMapsApiKey(true)
+        }
+    }
+}
+
+task summarizeTests{
+    group "custom manni"
+}
+
+/*
+android.applicationVariants.all { variant ->
+    println "==================="
+    println variant.name
+    println variant.baseName
+    println variant.productFlavors.collect { flavor -> flavor.name }
+    println variant.mergedFlavor.name
+    println android.buildTypes.collect { type -> type.name }
+    //def productFlavors = android.productFlavors.collect { flavor -> flavor.name }
+    variant.sourceSets.forEach{sSet ->
+        println sSet.name
+        println sSet.javaDirectories.flatten()
+    }
+}*/
+def getGoogleMapsApiKey(release) {
+    Properties props = new Properties()
+    if (release) {
+        props.load(new FileInputStream(new File('mobile/release.secrets')))
+    } else {
+        props.load(new FileInputStream(new File('mobile/debug.secrets')))
+    }
+    return props['GMAPS_API_KEY']
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:support-v4:' + rootProject.supportLibVersion
+    implementation 'com.android.support:appcompat-v7:' + rootProject.supportLibVersion
+    compile 'android.arch.lifecycle:extensions:' + rootProject.archRoomVersion
+    annotationProcessor 'android.arch.lifecycle:compiler:' + rootProject.archRoomVersion
+    implementation 'android.arch.lifecycle:runtime:1.0.3'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-android:2.13.0'
+    androidTestImplementation 'org.mockito:mockito-android:2.13.0'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    implementation 'com.android.support:recyclerview-v7:' + rootProject.supportLibVersion
+    implementation 'com.android.support:design:' + rootProject.supportLibVersion
+    implementation 'com.android.support:cardview-v7:' + rootProject.supportLibVersion
+    implementation 'android.arch.persistence.room:runtime:' + rootProject.archRoomVersion
+    implementation 'android.arch.persistence.room:rxjava2:' + rootProject.archRoomVersion
+    annotationProcessor 'android.arch.persistence.room:compiler:' + rootProject.archRoomVersion
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'io.reactivex.rxjava2:rxjava:2.1.5'
+    compile 'com.android.support:preference-v14:' + rootProject.supportLibVersion
+
+    // GMaps Dependencies
+    gmapsImplementation 'com.google.android.gms:play-services-maps:' + rootProject.playServicesVersion
+    gmapsCompile 'com.google.maps.android:android-maps-utils:0.5'
+
+    // OSM Dependencies
+    osmCompile 'org.osmdroid:osmdroid-android:5.6.5'
+
+    // Play Services Dependencies
+    playServicesCompile 'com.google.android.gms:play-services-oss-licenses:' + rootProject.playServicesVersion
+    playServicesImplementation 'com.google.android.gms:play-services-location:' + rootProject.playServicesVersion
+
+    implementation 'com.github.guennishueftgold.trapeze.api:trapezeapi:1.3.2'
+    implementation 'com.jakewharton.timber:timber:' + rootProject.timberVersion
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:' + rootProject.retrofitVersion
+    testImplementation "org.robolectric:robolectric:3.6.1"
+    testImplementation 'org.robolectric:shadows-support-v4:3.3.2'
+}

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="presenter"
+            type="com.semeshky.kvgspotter.adapter.DepartureAdapter.Presenter"/>
+
+        <variable
+            name="departure"
+            type="com.github.guennishueftgold.trapezeapi.Departure"/>
+
+        <variable
+            name="active"
+            type="boolean"/>
+
+        <variable
+            name="secondaryText"
+            type="String"/>
+
+        <variable
+            name="secondaryTextVisible"
+            type="boolean"/>
+
+        <variable
+            name="secondaryTextAlert"
+            type="boolean"/>
+
+        <variable
+            name="departureTime"
+            type="String"/>
+
+        <import type="android.view.View"/>
+    </data>
+
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/list_double_line_tile_height"
+        android:background="?android:attr/selectableItemBackground"
+        android:onClick="@{() -> presenter.onOpenClick(departure)}">
+
+        <TextView
+            android:id="@id/txtLine"
+            android:layout_width="@dimen/list_double_line_tile_height"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:lines="1"
+            android:padding="@dimen/list_double_line_icon_left_padding"
+            android:text="@{departure.patternText, default=`60s`}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textColor="@{active?@color/text_active_black:@color/text_inactive_black}"
+            app:autoSizeMaxTextSize="100sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@id/txtTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/list_double_line_text_right_padding"
+            android:gravity="start|center_vertical"
+            android:lines="1"
+            android:text="@{departure.direction, default=`Dreiecksplatz`}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textColor="@{active?@color/text_active_black:@color/text_inactive_black}"
+            app:layout_constraintBottom_toTopOf="@id/txtSubtitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/txtLine"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"/>
+
+        <TextView
+            android:id="@id/txtSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:lines="1"
+            android:text="@{departureTime, default=`2 minutes`}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@{active?@color/text_active_black:@color/text_inactive_black}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/txtLine"
+            app:layout_constraintTop_toBottomOf="@id/txtTitle"/>
+
+        <TextView
+            android:id="@id/txtTimeDelta"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="0dp"
+            android:gravity="end|center_vertical"
+            android:lines="1"
+            android:text="@{secondaryText, default=`2 minutes`}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="@{secondaryTextAlert?@color/bus_delayed_red:@color/text_secondary_black}"
+            android:visibility="@{secondaryTextVisible?View.VISIBLE:View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@id/txtSubtitle"
+            app:layout_constraintEnd_toEndOf="@id/txtTitle"
+            app:layout_constraintStart_toEndOf="@id/txtSubtitle"
+            app:layout_constraintTop_toTopOf="@id/txtSubtitle"/>
+
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

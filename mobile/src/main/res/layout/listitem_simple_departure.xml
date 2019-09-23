@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="departure"
+            type="com.github.guennishueftgold.trapezeapi.Departure"/>
+        <import type="com.semeshky.kvgspotter.util.JodaUtil"/>
+
+    </data>
+
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/table_data_row_height">
+
+        <TextView
+            android:id="@id/txtLine"
+            android:layout_width="80dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:lines="1"
+            android:paddingLeft="@dimen/table_data_row_padding"
+            android:paddingRight="@dimen/table_data_row_padding"
+            android:text="@{departure.patternText, default=`60s`}"
+            android:textAppearance="@style/AppTheme.TextAppearance.TableRow"
+            app:autoSizeMaxTextSize="@dimen/table_data_row_text_size"
+            app:autoSizeMinTextSize="2sp"
+            app:autoSizeStepGranularity="1sp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@id/txtTitle"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="start|center_vertical"
+            android:text="@{departure.direction, default=PLACEHOLDER}"
+            android:textAppearance="@style/AppTheme.TextAppearance.TableRow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/txtSubtitle"
+            app:layout_constraintStart_toEndOf="@id/txtLine"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@id/txtSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:gravity="start|center_vertical"
+            android:paddingLeft="@dimen/table_data_row_padding"
+            android:paddingRight="@dimen/table_data_row_padding"
+            android:text="@{JodaUtil.convertLocalTimeOrDelta(context, departure.actualTime), default=`20min`}"
+            android:textAppearance="@style/AppTheme.TextAppearance.TableRow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

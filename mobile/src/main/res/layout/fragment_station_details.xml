@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context="com.semeshky.kvgspotter.activities.StationDetailActivity">
+
+    <data>
+
+        <variable
+            name="station"
+            type="com.github.guennishueftgold.trapezeapi.Station"/>
+        <import type="com.semeshky.kvgspotter.util.JodaUtil"/>
+    </data>
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/constraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <include
+                android:id="@id/mapView"
+                layout="@layout/view_map_lite"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:clickable="false"
+                app:layout_constraintDimensionRatio="16:9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                android:id="@id/txtTitle"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:gravity="start|center_vertical"
+                android:paddingEnd="@dimen/list_single_line_horizontal_padding"
+                android:paddingStart="@dimen/list_single_line_horizontal_padding"
+                android:text="@{station.stopName,default=PLACEHOLDER}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/mapView"/>
+
+            <TextView
+                android:id="@+id/txtRoutesTitle"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/tile_height_subhead"
+                android:gravity="start|center_vertical"
+                android:paddingEnd="@dimen/list_single_line_horizontal_padding"
+                android:paddingStart="@dimen/list_single_line_horizontal_padding"
+                android:text="@string/routes"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txtTitle"/>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txtRoutesTitle">
+
+            </android.support.v7.widget.RecyclerView>
+            <TextView
+                android:id="@+id/txtSubheadAdvanced"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/tile_height_subhead"
+                android:gravity="start|center_vertical"
+                android:paddingEnd="@dimen/list_single_line_horizontal_padding"
+                android:paddingStart="@dimen/list_single_line_horizontal_padding"
+                android:text="@string/advanced"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recyclerView"/>
+            <TextView
+                android:id="@+id/txtFirstPassageTimeDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:paddingEnd="@dimen/list_single_line_horizontal_padding"
+                android:paddingStart="@dimen/list_single_line_horizontal_padding"
+                android:text="@string/first_passage_time"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txtSubheadAdvanced"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:paddingEnd="@dimen/list_single_line_horizontal_padding"
+                android:paddingStart="@dimen/list_single_line_horizontal_padding"
+                android:text="@{JodaUtil.timestampToLocalTime(station.firstPassageTime), default=PLACEHOLDER}"
+                app:layout_constraintBottom_toBottomOf="@id/txtFirstPassageTimeDesc"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/txtFirstPassageTimeDesc"
+                app:layout_constraintTop_toTopOf="@id/txtFirstPassageTimeDesc"/>
+
+            <TextView
+                android:id="@+id/txtLastPassageTimeDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:paddingEnd="@dimen/list_single_line_horizontal_padding"
+                android:paddingStart="@dimen/list_single_line_horizontal_padding"
+                android:text="@string/last_passage_time"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txtFirstPassageTimeDesc"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:paddingEnd="@dimen/list_single_line_horizontal_padding"
+                android:paddingStart="@dimen/list_single_line_horizontal_padding"
+                android:text="@{JodaUtil.timestampToLocalTime(station.lastPassageTime), default=PLACEHOLDER}"
+                app:layout_constraintBottom_toBottomOf="@id/txtLastPassageTimeDesc"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/txtLastPassageTimeDesc"
+                app:layout_constraintTop_toTopOf="@id/txtLastPassageTimeDesc"/>
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+</layout>
