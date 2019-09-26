@@ -29,12 +29,12 @@ if(signingPropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 29
     buildToolsVersion rootProject.buildToolsVersion
     defaultConfig {
         applicationId "com.semeshky.kvgspotter"
         minSdkVersion 21
-        targetSdkVersion 27
+        targetSdkVersion 29
         versionCode 1
         versionName "1.1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
